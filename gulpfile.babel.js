@@ -1,6 +1,6 @@
 import gulp from 'gulp';
 import yargs from 'yargs';
-import sass from 'gulp-sass';
+var sass = require('gulp-sass')(require('sass'));
 import cleanCSS from 'gulp-clean-css';
 import gulpIf from 'gulp-if';
 import sourcemaps from 'gulp-sourcemaps';
@@ -16,7 +16,7 @@ const paths = {
     dest: 'dist/assets/css',
   },
   images: {
-    src: 'src/assets/images/**/*.{jpg, jpeg, svg, gif}',
+    src: 'src/assets/images/**/*.{jpg, jpeg, svg, png, gif}',
     dest: 'dist/assets/images',
   },
   other: {
@@ -28,8 +28,7 @@ const paths = {
 
 export const styles = (done) => {
   // can pass array instead of string for src if you want to run multiple files
-  return gulp
-    .src(paths.styles.src)
+  return gulp.src(paths.styles.src)
     .pipe(gulpIf(!PRODUCTION, sourcemaps.init()))
     .pipe(sass().on('error', sass.logError))
     .pipe(gulpIf(PRODUCTION, cleanCSS({ compatibility: 'ie8' })))
