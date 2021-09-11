@@ -7,7 +7,8 @@
     "lib": "lib"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "gulp dev",
+    "build": "gulp build --prod"
   },
   "author": "",
   "license": "ISC",
@@ -16,6 +17,8 @@
     "@babel/preset-env": "^7.15.4",
     "@babel/register": "^7.15.3",
     "babel-core": "^6.14.0",
+    "babel-loader": "^8.2.2",
+    "del": "^6.0.0",
     "gulp": "^4.0.2",
     "gulp-clean-css": "^4.3.0",
     "gulp-if": "^3.0.0",
@@ -23,6 +26,7 @@
     "gulp-sass": "^5.0.0",
     "gulp-sourcemaps": "^3.0.0",
     "sass": "^1.39.0",
+    "webpack-stream": "^7.0.0",
     "yargs": "^7.1.2"
   }
 }
