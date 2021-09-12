@@ -15,14 +15,14 @@
         </h2>
         <div>
             <!-- post details -->
-            <?php firsttheme_post_meta()?>
+            <?php _themename_post_meta()?>
         </div>
         <div>
             <!-- post summary -->
             <?php the_excerpt()?>
         </div>
         <!-- post readmore link -->
-        <?php firsttheme_readmore_link()?>
+        <?php _themename_readmore_link()?>
     <?php }?>
     <h4>Posts Navigation</h4>
     <?php the_posts_pagination()?>
@@ -31,9 +31,8 @@
 <?php }?>
 
 <?php
-$city = 'london';
+$city = 'london!!!!!!';
 
-echo esc_html__('Your city is ', 'first-theme') . $city;
 
 printf(
     esc_html__('Your city is %s', 'first-theme'),

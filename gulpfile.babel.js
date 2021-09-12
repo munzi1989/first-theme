@@ -7,7 +7,14 @@ import sourcemaps from 'gulp-sourcemaps'
 import imagemin from 'gulp-imagemin'
 import del from 'del'
 import webpack from 'webpack-stream'
+import named from 'vinyl-named'
+import browserSync from 'browser-sync'
+import zip from 'gulp-zip'
+import replace from 'gulp-replace'
+import info from './package.json'
 
+// to create server for browser sync
+const server = browserSync.create()
 const PRODUCTION = yargs.argv.prod
 
 console.log('!!!!  PRODUCTION = ', PRODUCTION)
@@ -23,7 +30,7 @@ const paths = {
     dest: 'dist/assets/images',
   },
   scripts: {
-    src: 'src/assets/js/bundle.js',
+    src: ['src/assets/js/bundle.js', 'src/assets/js/admin.js'],
     dest: 'dist/assets/js',
   },
   other: {
@@ -34,6 +41,34 @@ const paths = {
     ],
     dest: 'dist/assets',
   },
+  package: {
+    src: [
+      '**/*',
+      '!.vscode',
+      '!node_modules',
+      '!node_modules{,/**}',
+      '!packaged{,/**}',
+      '!src/{,**}',
+      '!.babelrc',
+      '!.gitignore',
+      '!gulpfile.babel.js',
+      '!package.json',
+      '!package-lock.json',
+    ],
+    dest: 'packaged',
+  },
+}
+// Start browsersync server
+export const serve = (done) => {
+  server.init({
+    proxy: 'http://localhost/WP-Course/first-theme/',
+  })
+  done()
+}
+// reolad browser
+const reload = (done) => {
+  server.reload()
+  done()
 }
 
 // gulp styles to generate CSS from SCSS if in production
@@ -46,6 +81,7 @@ export const styles = (done) => {
     .pipe(gulpIf(PRODUCTION, cleanCSS({ compatibility: 'ie8' })))
     .pipe(gulpIf(!PRODUCTION, sourcemaps.write()))
     .pipe(gulp.dest(paths.styles.dest))
+    .pipe(server.stream())
 }
 // minify images if able
 export const images = () => {
@@ -54,12 +90,14 @@ export const images = () => {
     .pipe(gulpIf(PRODUCTION, imagemin()))
     .pipe(gulp.dest(paths.images.dest))
 }
-
 // update styles on SCSS file update
 export const watch = () => {
   gulp.watch('src/assets/scss/**/*.scss', styles)
-  gulp.watch(paths.images.src, images)
-  gulp.watch(paths.other.src, copySrc)
+  gulp.watch('src/assets/js/**/*.js', gulp.series(scripts, reload))
+  gulp.watch('**/*.php', reload)
+  gulp.watch(paths.images.src, gulp.series(images, reload))
+  gulp.watch(paths.other.src, gulp.series(copySrc, reload))
+  console.log('Watching for changes...')
 }
 // copy src folder into dist folder
 export const copySrc = () => {
@@ -72,6 +110,7 @@ export const clean = (done) => del(['dist'])
 export const scripts = () => {
   return gulp
     .src(paths.scripts.src)
+    .pipe(named())
     .pipe(
       webpack({
         module: {
@@ -89,21 +128,46 @@ export const scripts = () => {
         },
         // names the output file
         output: {
-          filename: 'bundle.js',
+          filename: '[name].js',
         },
+        // assign jQuery as external to use as npm dependency in bundle.js
+        externals: {
+          jquery: 'jQuery',
+        },
+        // if !PRODUCTION don't include soruce map
         devtool: !PRODUCTION ? 'inline-source-map' : false,
-        // production mode uglifies by default
+        // production mode uglifies JS by default
         mode: PRODUCTION ? 'production' : 'development',
       }),
     )
     .pipe(gulp.dest(paths.scripts.dest))
 }
 
+// DEVELoPMENT
 // automated tasks for dev and build
 export const dev = gulp.series(
   clean,
-  gulp.parallel(styles, images, copySrc),
+  gulp.parallel(styles, images, scripts, copySrc),
+  serve,
   watch,
 )
 
-export const build = gulp.series(clean, gulp.parallel(styles, images, copySrc))
+// PRODUCTION
+// distribute src files to dist folder- uglify, minimize resources, prepare to zip
+export const build = gulp.series(
+  clean,
+  gulp.parallel(styles, images, scripts, copySrc),
+)
+
+
+// bundles all resources into zip folder for
+export const compress = () => {
+  return gulp
+    .src(paths.package.src)
+    .pipe(replace('_themename', `${info.name}`))
+    .pipe(zip(`${info.name}.zip`))
+    .pipe(gulp.dest(paths.package.dest))
+}
+
+// PACKAGE/BUNDLE PROJECT-FINISHED
+export const bundle = gulp.series(build, compress)
