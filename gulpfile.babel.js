@@ -90,7 +90,7 @@ export const images = () => {
     .pipe(gulpIf(PRODUCTION, imagemin()))
     .pipe(gulp.dest(paths.images.dest))
 }
-// update styles on SCSS file update
+// update all watched on change
 export const watch = () => {
   gulp.watch('src/assets/scss/**/*.scss', styles)
   gulp.watch('src/assets/js/**/*.js', gulp.series(scripts, reload))
