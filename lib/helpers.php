@@ -8,7 +8,7 @@ if (!function_exists('_themename_post_meta')) {
             /*interpretor: %s is a variable for the date */
             esc_html__('Posted on %s', '_themename'),
             '<a href="' . esc_url(get_permalink()) . '"><time datetime="' . esc_attr(get_the_date('c')) .
-            '">' . esc_html(get_the_date()) . '</time></a>'
+                '">' . esc_html(get_the_date()) . '</time></a>'
         );
 
         printf(
@@ -18,7 +18,7 @@ if (!function_exists('_themename_post_meta')) {
     }
 }
 
-// takes user to permalink
+// takes user to permalink- return "a" tag html to redirect user to permalink
 function _themename_readmore_link()
 {
     echo '<a class="c-post__readmore" href="' . esc_url(get_permalink()) . '"title="' . esc_attr(the_title_attribute(['echo' => false])) . '">';

@@ -14,6 +14,7 @@ function _themename_sidebar_widgets()
         'after_title' => '</h5>'
     ));
 
+    // need to have options to change
     $footer_layout = '3,3,3,3';
     $columns = explode(',', $footer_layout);
     $footer_bg = 'dark';

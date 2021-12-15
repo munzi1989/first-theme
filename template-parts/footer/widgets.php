@@ -1,4 +1,5 @@
 <?php
+// TODO: add options to be dynamic
 $footer_layout = '3,3,3,3';
 $columns = explode(',', $footer_layout);
 $footer_bg = 'dark';
